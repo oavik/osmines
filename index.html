@@ -3,11 +3,75 @@
 <meta charset="utf-8">
 <title>Mines</title>
 <style type="text/css">
+#game { display: block; margin-left: auto; margin-right: auto; padding: 0; border: 0; }
+span { display: inline-block; border-style: solid; border-left-color: #eee; border-top-color: #eee; border-right-color: #333; border-bottom-color: #333; background: #ccc; margin: 0; padding: 0; text-align: center; vertical-align: middle; }
+.clicked { border: none; }
 </style>
 <script type="text/javascript">
+var game = { width: 10, height: 10, mines: 10, firstclick: true };
+
+function reveal() {
+	this.style.borderColor = "#ccc";
+	var row = parseInt(this.id);
+	var col = parseInt(this.id.substring(this.id.indexOf("-")+1));
+
+	if (game.firstclick && game.field[row][col]) {
+		game.field[row][col] = false;
+		/* move the bomb */
+	}
+	game.firstclick = false;
+
+	if (game.field[row][col]) {
+		this.innerHTML = "&#x1f4a3;";
+	} else {
+		this.innerHTML = "&#x2690;";
+		/* count the things */
+	}
+}
+
+function resize() {
+	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
+	var border = Math.ceil(squaresize / 10);
+	squaresize -= border * 2;
+	var squares = document.getElementsByTagName("span");
+	for (var i = 0; i < squares.length; i++) {
+		squares[i].style.width = squaresize + "px";
+		squares[i].style.height = squaresize + "px";
+		squares[i].style.borderWidth = border + "px";
+	}
+	document.getElementById("game").style.width = (squaresize.width * game.width) + "px";
+	document.getElementById("game").style.height = (squaresize.height * game.height) + "px";
+}
+
 function init() {
+	game.field = new Array();
+	for (var i = 0; i < game.height; i++) {
+		game.field[i] = new Array();
+		var row = document.createElement("div");
+		for (var j = 0; j < game.width; j++) {
+			game.field[i][j] = false;
+			var square = document.createElement("span");
+			square.innerHTML = "&nbsp;";
+			square.id = i + "-" + j;
+			square.onclick = reveal;
+			row.appendChild(square);
+		}
+		document.getElementById("game").appendChild(row);
+	}
+	for (var i = 0; i < game.mines; i++ ) {
+		var row = Math.floor(Math.random() * game.height);
+		var col = Math.floor(Math.random() * game.width);
+		if (game.field[row][col]) {
+			i--;
+		} else {
+			game.field[row][col] = true;
+		}
+	}
+	resize();
 }
 </script>
+</head>
 <body onload="init();">
+<div id="game"></div>
 </body>
 </html>
