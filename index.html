@@ -5,27 +5,78 @@
 <style type="text/css">
 #game { display: block; margin-left: auto; margin-right: auto; padding: 0; border: 0; }
 span { display: inline-block; border-style: solid; border-left-color: #eee; border-top-color: #eee; border-right-color: #333; border-bottom-color: #333; background: #ccc; margin: 0; padding: 0; text-align: center; vertical-align: middle; }
-.clicked { border: none; }
+.1 { color: blue; }
+.2 { color: red; }
+.3 { color: green; }
+.4 { color: purple; }
+.5 { color: orange; }
+.6 { color: yellow; }
+.7 { color: white; }
+.8 { color: black; }
 </style>
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
 
-function reveal() {
+function expose(row, col) {
+	var neighbors = 0;
+
+	for (var i = (row > 1 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
+		for (var j = (col > 1 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
+			//console.log("checking " + i + "," + j);
+			if (i != row && j != col) {
+				if (game.bombs[i][j]) {
+					neighbors++;
+				}
+			}
+		}
+	}
+
+	if (neighbors == 0) {
+		for (var i = (row > 1 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
+			for (var j = (col > 1 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
+				if (i != row && j != col) {
+					expose(i, j);
+				}
+			}
+		}
+	} else {
+		var square = document.getElementById(row + "-" + col);
+		square.innerHTML = neighbors;
+		square.className = neighbors;
+	}
+}
+
+function reveal(e) {
+	e.preventDefault();
 	this.style.borderColor = "#ccc";
 	var row = parseInt(this.id);
-	var col = parseInt(this.id.substring(this.id.indexOf("-")+1));
+	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
+	console.log("click " + row + "," + col);
+	console.log(game.bombs[row][col]);
 
-	if (game.firstclick && game.field[row][col]) {
-		game.field[row][col] = false;
-		/* move the bomb */
+	if (game.firstclick && game.bombs[row][col]) {
+		game.bombs[row][col] = false;
+		
 	}
 	game.firstclick = false;
 
-	if (game.field[row][col]) {
+	if (game.bombs[row][col]) {
 		this.innerHTML = "&#x1f4a3;";
 	} else {
+		expose(row, col);
+	}
+}
+
+function flag(e) {
+	e.preventDefault();
+	if (this.innerHTML == "&nbsp;") {
 		this.innerHTML = "&#x2690;";
-		/* count the things */
+		this.removeEventListener("click", reveal);
+	} else if (this.innerHTML == "?") {
+		this.innerHTML = "";
+		this.addEventListener("click", reveal);
+	} else {
+		this.innerHTML = "?";
 	}
 }
 
@@ -38,36 +89,43 @@ function resize() {
 		squares[i].style.width = squaresize + "px";
 		squares[i].style.height = squaresize + "px";
 		squares[i].style.borderWidth = border + "px";
+		squares[i].style.fontSize = Math.floor(squaresize * 3 / 4) + "px";
 	}
 	document.getElementById("game").style.width = (squaresize.width * game.width) + "px";
 	document.getElementById("game").style.height = (squaresize.height * game.height) + "px";
 }
 
 function init() {
-	game.field = new Array();
+	game.bombs = new Array();
+
 	for (var i = 0; i < game.height; i++) {
-		game.field[i] = new Array();
+		game.bombs[i] = new Array();
 		var row = document.createElement("div");
 		for (var j = 0; j < game.width; j++) {
-			game.field[i][j] = false;
+			game.bombs[i][j] = false;
 			var square = document.createElement("span");
 			square.innerHTML = "&nbsp;";
 			square.id = i + "-" + j;
-			square.onclick = reveal;
+			square.addEventListener("click", reveal);
+			square.addEventListener("contextmenu", flag);
 			row.appendChild(square);
 		}
 		document.getElementById("game").appendChild(row);
 	}
+
 	for (var i = 0; i < game.mines; i++ ) {
 		var row = Math.floor(Math.random() * game.height);
 		var col = Math.floor(Math.random() * game.width);
-		if (game.field[row][col]) {
+		console.log("placing bomb at " + row + "," + col);
+		if (game.bombs[row][col]) {
 			i--;
 		} else {
-			game.field[row][col] = true;
+			game.bombs[row][col] = true;
 		}
 	}
+
 	resize();
+	window.onresize = resize;
 }
 </script>
 </head>
