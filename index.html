@@ -18,29 +18,26 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
 
 function expose(row, col) {
+	var square = document.getElementById(row + "-" + col);
+	square.style.borderColor = "#ccc";
+	square.removeEventListener("click", reveal);
+	square.removeEventListener("contextmenu", reveal);
+
+	game.seen[row][col] = true;
+
 	var neighbors = 0;
 
 	for (var i = (row > 1 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 		for (var j = (col > 1 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-			//console.log("checking " + i + "," + j);
-			if (i != row && j != col) {
 				if (game.bombs[i][j]) {
 					neighbors++;
+				} else if ((i == row || j == col) && !game.seen[i][j]) {
+					expose(i, j);
 				}
-			}
 		}
 	}
 
-	if (neighbors == 0) {
-		for (var i = (row > 1 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
-			for (var j = (col > 1 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-				if (i != row && j != col) {
-					expose(i, j);
-				}
-			}
-		}
-	} else {
-		var square = document.getElementById(row + "-" + col);
+	if (neighbors != 0) {
 		square.innerHTML = neighbors;
 		square.className = neighbors;
 	}
@@ -97,12 +94,15 @@ function resize() {
 
 function init() {
 	game.bombs = new Array();
+	game.seen = new Array();
 
 	for (var i = 0; i < game.height; i++) {
 		game.bombs[i] = new Array();
+		game.seen[i] = new Array();
 		var row = document.createElement("div");
 		for (var j = 0; j < game.width; j++) {
 			game.bombs[i][j] = false;
+			game.seen[i][j] = false;
 			var square = document.createElement("span");
 			square.innerHTML = "&nbsp;";
 			square.id = i + "-" + j;
