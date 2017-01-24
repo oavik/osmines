@@ -15,9 +15,12 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 .n8 { color: turquoise; }
 #score { background: #ccc; }
 #mines, #time { display: inline-block; background: #ccc; border-color: #ccc; }
+#options { visibility: hidden; background: #ccc; border: thin solid black; position: absolute; top: 10%; left: 10%; }
+#options label { width: 10em; }
+#options input { width: 3em; }
 </style>
 <script type="text/javascript">
-var game = { width: 9, height: 9, mines: 10, firstclick: true };
+var game = { width: 10, height: 10, mines: 10, firstclick: true };
 
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
@@ -157,6 +160,8 @@ function gameover(win) {
 }
 
 function newgame() {
+	document.getElementById("options").style.visibility = "hidden";
+
 	game.bombs = new Array();
 	game.seen = new Array();
 	game.flagged = new Array();
@@ -206,18 +211,56 @@ function newgame() {
 	resize();
 }
 
-function options() {
+function options(e) {
+	e.preventDefault();
+
+	document.getElementById("options").style.visibility = "visible";
+}
+
+function update() {
+	var width = document.getElementById("width");
+	var height = document.getElementById("height");
+	var nmines = document.getElementById("nmines");
+	if (isNaN(parseInt(width.value))) {
+		width.value = game.width.toString();
+	} else if (parseInt(width.value) < 2) {
+		width.value = "2";
+	} else if (parseInt(width.value) > 99) {
+		width.value = "99";
+	}
+
+	if (isNaN(parseInt(height.value))) {
+		height.value = game.height.toString();
+	} else if (parseInt(height.value) < 2) {
+		height.value = "2";
+	} else if (parseInt(height.value) > 99) {
+		height.value = "99";
+	}
+
+	if (isNaN(parseInt(nmines.value))) {
+		nmines.value = game.nmines.toString();
+	} else if (parseInt(nmines.value) < 1) {
+		nmines.value = "1";
+	} else if (parseInt(nmines.value) > ((width.value * height.value) * 3 / 4)) {
+		nmines.value = ((width.value * height.value) * 3 / 4).toString();
+	}
+
+	game.width = width.value;
+	game.height = height.value;
+	game.mines = nmines.value;
 }
 
 function init() {
 	document.getElementById("newgame").addEventListener("click", newgame);
 	document.getElementById("newgame").addEventListener("contextmenu", options);
+	/*
 	if (localStorage.getItem("width") == undefined) { localStorage.setItem("width", 10); }
 	if (localStorage.getItem("height") == undefined) { localStorage.setItem("height", 10); }
 	if (localStorage.getItem("mines") == undefined) { localStorage.setItem("mines", 10); }
 	game.width = parseInt(localStorage.getItem("width"));
 	game.height = parseInt(localStorage.getItem("height"));
 	game.mines = parseInt(localStorage.getItem("mines"));
+	*/
 	newgame();
 	window.onresize = resize;
 }
@@ -232,9 +275,11 @@ function init() {
 	</div>
 </div>
 <div id="options">
-	<label for="width">Width:</label><input type="number" min="2" max="99" id="width">
-	<label for="height">Height:</label><input type="number" min="2" max="99" id="height">
-	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines">
+	<form action="#" onsubmit="newgame();">
+	<div><label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();"></div>
+	<div><label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();"></div>
+	<div><label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();"></div>
+	</form>
 </div>
 </body>
 </html>
