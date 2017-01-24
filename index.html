@@ -26,8 +26,10 @@ button { font-size: inherit; }
 #score { background: #ccc; }
 #mines, #time { display: inline-block; }
 #options { display: none; color: black; }
-#options label { width: 10em; }
-#options input { width: 3em; }
+#options button { width: 50%; }
+label { float: left; }
+input[type=number] { float: right; }
+input[type=submit] { width: 50%; }
 </style>
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
@@ -149,7 +151,12 @@ function allsquares(fn) {
 
 
 function resize() {
+	console.log("Window width: " + window.innerWidth + "; game width: " + game.width);
+	console.log("=" + (window.innerWidth / game.width));
+	console.log("Window height: " + window.innerHeight + "; game height: " + game.height);
+	console.log("=" + (window.innerHeight / (game.height + 1)));
 	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
+	console.log("squares: " + squaresize);
 	allsquares(function (s) { s.style.width = squaresize + "px"; s.style.height = squaresize + "px"; });
 
 	var controlwidth = (game.width - 1) * squaresize;
@@ -199,7 +206,9 @@ function gameover(win) {
 }
 
 function newgame() {
-	document.getElementById("options").style.visibility = "hidden";
+	document.getElementById("options").style.display = "none";
+	document.getElementById("score").style.visibility = "visible";
+	document.getElementById("newgame").style.visibility = "visible";
 
 	game.bombs = new Array();
 	game.seen = new Array();
@@ -211,8 +220,10 @@ function newgame() {
 
 	var rows = document.getElementsByClassName("row");
 	for (var i = rows.length-1; i >= 0; i--) {
+		console.log("Removing old row");
 		rows[i].parentNode.removeChild(rows[i]);
 	}
+	console.log(document.getElementById("game"));
 
 	for (var i = 0; i < game.height; i++) {
 		game.bombs[i] = new Array();
@@ -245,7 +256,27 @@ function newgame() {
 }
 
 function selectnewgame(e) {
-	document.getElementById("options").style.display = "block";
+	var form = document.getElementById("options");
+	form.style.width = document.getElementById("game").style.width;
+	form.style.display = "block";
+
+	game.oldwidth = game.width;
+	game.oldheight = game.height;
+	game.oldmines = game.mines;
+
+	document.getElementById("score").style.visibility = "hidden";
+	allsquares(function (s) { s.style.visibility = "hidden"; });
+}
+
+function oldgame() {
+	game.width = game.oldwidth;
+	game.height = game.oldheight;
+	game.mines = game.oldmines;
+
+	document.getElementById("options").style.display = "none";
+	
+	document.getElementById("score").style.visibility = "visible";
+	allsquares(function (s) { s.style.visibility = "visible"; });
 }
 
 function update() {
@@ -276,9 +307,9 @@ function update() {
 		nmines.value = ((width.value * height.value) * 3 / 4).toString();
 	}
 
-	game.width = width.value;
-	game.height = height.value;
-	game.mines = nmines.value;
+	game.width = parseInt(width.value);
+	game.height = parseInt(height.value);
+	game.mines = parseInt(nmines.value);
 }
 
 function init() {
@@ -304,10 +335,11 @@ function init() {
 	<span id="time">0</span>
 	</div>
 
-	<form id="options" action="#" onsubmit="newgame();">
-	<label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();">
-	<label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();">
-	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();">
+	<form id="options">
+	<label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();"><br>
+	<label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();"><br>
+	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();"><br>
+	<input type="submit" value="New Game" onclick="newgame(); return false;"><input type="submit" value="Cancel" onclick="oldgame(); return false;">
 	</form>
 
 </div>
