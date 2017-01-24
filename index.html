@@ -20,13 +20,14 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 var game = { width: 9, height: 9, mines: 10, firstclick: true };
 
 function expose(row, col) {
+	/* FIXME: is flagged? */
 	var square = document.getElementById(row + "-" + col);
 	square.style.borderColor = "#ccc";
 	square.removeEventListener("click", reveal);
 	square.removeEventListener("contextmenu", flag);
 
 	game.seen[row][col] = true;
-	game.unclicked--;
+	game.unclicked++;
 
 	var neighbors = 0;
 
@@ -42,6 +43,7 @@ function expose(row, col) {
 		square.innerHTML = neighbors;
 		square.className = "n" + neighbors;
 	} else {
+		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
 					if ((i == row || j == col) && !game.seen[i][j]) {
@@ -138,12 +140,17 @@ function addtime() {
 
 function gameover(win) {
 	window.clearInterval(game.timer);
-	var ng = document.getElementById("newgame");
-	if (win) {
-		ng.innerHTML = "&#x1f60e;";
-	} else {
-		ng.innerHTML = "&#x2639;";
+
+	for (var i = 0; i < game.height; i++) {
+		for (var j = 0; j < game.width; j++) {
+			if (game.bombs[i][j]) {
+				document.getElementById(i + "-" + j).innerHTML = win ? "&#x2690;" : "&#x1f4a3;";
+/* bomb: "&#x1f4a3;" */
+			}
+		}
 	}
+
+	document.getElementById("newgame").innerHTML = win ?  "&#x1f60e;" : "&#x2639;";
 }
 
 function newgame() {
@@ -154,7 +161,7 @@ function newgame() {
 	game.unclicked = 0;
 
 	var rows = document.getElementsByClassName("row");
-	for (var i = 0; i < rows.length; i++) {
+	for (var i = rows.length-1; i >= 0; i--) {
 		rows[i].parentNode.removeChild(rows[i]);
 	}
 
