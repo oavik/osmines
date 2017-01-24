@@ -5,14 +5,16 @@
 <style type="text/css">
 #game { display: block; margin-left: auto; margin-right: auto; padding: 0; border: 0; }
 span { display: inline-block; border-style: solid; border-left-color: #eee; border-top-color: #eee; border-right-color: #333; border-bottom-color: #333; background: #ccc; margin: 0; padding: 0; text-align: center; vertical-align: middle; }
-.1 { color: blue; }
-.2 { color: red; }
-.3 { color: green; }
-.4 { color: purple; }
-.5 { color: orange; }
-.6 { color: yellow; }
-.7 { color: white; }
-.8 { color: black; }
+.n1 { color: blue; }
+.n2 { color: green; }
+.n3 { color: red; }
+.n4 { color: purple; }
+.n5 { color: orange; }
+.n6 { color: yellow; }
+.n7 { color: white; }
+.n8 { color: black; }
+#score { background: #ccc; }
+#mines, #time { display: inline-block; background: #ccc; border-color: #ccc; }
 </style>
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
@@ -21,14 +23,14 @@ function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
 	square.style.borderColor = "#ccc";
 	square.removeEventListener("click", reveal);
-	square.removeEventListener("contextmenu", reveal);
+	square.removeEventListener("contextmenu", flag);
 
 	game.seen[row][col] = true;
 
 	var neighbors = 0;
 
-	for (var i = (row > 1 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
-		for (var j = (col > 1 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
+	for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
+		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
 				if (game.bombs[i][j]) {
 					neighbors++;
 				} else if ((i == row || j == col) && !game.seen[i][j]) {
@@ -39,12 +41,17 @@ function expose(row, col) {
 
 	if (neighbors != 0) {
 		square.innerHTML = neighbors;
-		square.className = neighbors;
+		square.className = "n" + neighbors;
 	}
 }
 
 function reveal(e) {
 	e.preventDefault();
+
+	if (game.timer == undefined) {
+		game.timer = window.setInterval(addtime, 1000);
+	}
+
 	this.style.borderColor = "#ccc";
 	var row = parseInt(this.id);
 	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
@@ -59,6 +66,7 @@ function reveal(e) {
 
 	if (game.bombs[row][col]) {
 		this.innerHTML = "&#x1f4a3;";
+		gameover(false);
 	} else {
 		expose(row, col);
 	}
@@ -66,15 +74,23 @@ function reveal(e) {
 
 function flag(e) {
 	e.preventDefault();
+
+	if (game.timer == undefined) {
+		game.timer = window.setInterval(addtime, 1000);
+	}
+
 	if (this.innerHTML == "&nbsp;") {
 		this.innerHTML = "&#x2690;";
 		this.removeEventListener("click", reveal);
+		game.flags++;
 	} else if (this.innerHTML == "?") {
 		this.innerHTML = "";
 		this.addEventListener("click", reveal);
+		game.flags--;
 	} else {
 		this.innerHTML = "?";
 	}
+	document.getElementById("mines").innerHTML = game.mines - game.flags;
 }
 
 function resize() {
@@ -88,18 +104,46 @@ function resize() {
 		squares[i].style.borderWidth = border + "px";
 		squares[i].style.fontSize = Math.floor(squaresize * 3 / 4) + "px";
 	}
-	document.getElementById("game").style.width = (squaresize.width * game.width) + "px";
-	document.getElementById("game").style.height = (squaresize.height * game.height) + "px";
+
+	var controlwidth = (game.width - 1) * (squaresize + (2 * border));
+	var minessize = Math.floor(controlwidth - squaresize) / 2;
+	var timesize = Math.ceil(controlwidth - squaresize) / 2;
+	document.getElementById("score").style.width = (controlwidth + squaresize + 2 * border) + "px";
+	document.getElementById("mines").style.width = minessize + "px";
+	document.getElementById("time").style.width = timesize + "px";
 }
 
-function init() {
+function addtime() {
+	game.time++;
+	document.getElementById("time").innerHTML = game.time;
+}
+
+function gameover(win) {
+	window.clearInterval(game.timer);
+	var ng = document.getElementById("newgame");
+	if (win) {
+		ng.innerHTML = "&#x1f60e;";
+	} else {
+		ng.innerHTML = "&#x2639;";
+	}
+}
+
+function newgame() {
 	game.bombs = new Array();
 	game.seen = new Array();
+	game.time = 0;
+	game.flags = 0;
+
+	var rows = document.getElementsByClassName("row");
+	for (var i = 0; i < rows.length; i++) {
+		rows[i].parentNode.removeChild(rows[i]);
+	}
 
 	for (var i = 0; i < game.height; i++) {
 		game.bombs[i] = new Array();
 		game.seen[i] = new Array();
 		var row = document.createElement("div");
+		row.className = "row";
 		for (var j = 0; j < game.width; j++) {
 			game.bombs[i][j] = false;
 			game.seen[i][j] = false;
@@ -116,7 +160,7 @@ function init() {
 	for (var i = 0; i < game.mines; i++ ) {
 		var row = Math.floor(Math.random() * game.height);
 		var col = Math.floor(Math.random() * game.width);
-		console.log("placing bomb at " + row + "," + col);
+
 		if (game.bombs[row][col]) {
 			i--;
 		} else {
@@ -124,12 +168,24 @@ function init() {
 		}
 	}
 
+	document.getElementById("mines").innerHTML = game.mines;
 	resize();
+}
+
+function init() {
+	document.getElementById("newgame").addEventListener("click", newgame);
+	newgame();
 	window.onresize = resize;
 }
 </script>
 </head>
 <body onload="init();">
-<div id="game"></div>
+<div id="game">
+	<div id="score">
+	<span id="mines">0</span>
+	<span id="newgame">&#x263a;</span>
+	<span id="time">0</span>
+	</div>
+</div>
 </body>
 </html>
