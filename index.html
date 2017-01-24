@@ -10,9 +10,8 @@
 <link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
 <meta name="theme-color" content="#ffffff">
 <style type="text/css">
-body, div { margin: 0; padding: 0; border: none; }
-#game { display: block; margin-left: auto; margin-right: auto; padding: 0; border: 0; }
-span { display: inline-block; border-style: solid; border-left-color: #eee; border-top-color: #eee; border-right-color: #333; border-bottom-color: #333; background: #ccc; margin: 0; padding: 0; text-align: center; vertical-align: middle; }
+* { margin: 0; padding: 0; text-align: center; }
+button { font-size: inherit; }
 .n1 { color: blue; }
 .n2 { color: green; }
 .n3 { color: red; }
@@ -21,9 +20,12 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 .n6 { color: maroon; }
 .n7 { color: gray; }
 .n8 { color: turquoise; }
+.bomb { color: black; }
+.flag.bomb { color: red; }
+.flag.nobomb { color: green; }
 #score { background: #ccc; }
-#mines, #time { display: inline-block; background: #ccc; border-color: #ccc; }
-#options { visibility: hidden; background: #ccc; border: thin solid black; position: absolute; top: 10%; left: 10%; }
+#mines, #time { display: inline-block; }
+#options { display: none; }
 #options label { width: 10em; }
 #options input { width: 3em; }
 </style>
@@ -32,7 +34,7 @@ var game = { width: 10, height: 10, mines: 10, firstclick: true };
 
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
-	square.style.borderColor = "#ccc";
+	square.disabled = true;
 	square.removeEventListener("click", reveal);
 	square.removeEventListener("contextmenu", flag);
 
@@ -43,9 +45,9 @@ function expose(row, col) {
 
 	for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-				if (game.bombs[i][j]) {
-					neighbors++;
-				}
+			if (game.bombs[i][j]) {
+				neighbors++;
+			}
 		}
 	}
 
@@ -71,7 +73,7 @@ function reveal(e) {
 		game.timer = window.setInterval(addtime, 1000);
 	}
 
-	this.style.borderColor = "#ccc";
+	this.disabled = true;
 	var row = parseInt(this.id);
 	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
 
@@ -91,7 +93,6 @@ function reveal(e) {
 	game.firstclick = false;
 
 	if (game.bombs[row][col]) {
-		this.innerHTML = "&#x1f4a3;";
 		gameover(false);
 	} else {
 		expose(row, col);
@@ -132,20 +133,18 @@ function checkwinner() {
 
 function resize() {
 	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
-	var border = Math.ceil(squaresize / 20);
-	squaresize -= border * 2;
-	var squares = document.getElementsByTagName("span");
+	var squares = document.getElementsByTagName("button");
 	for (var i = 0; i < squares.length; i++) {
 		squares[i].style.width = squaresize + "px";
 		squares[i].style.height = squaresize + "px";
-		squares[i].style.borderWidth = border + "px";
-		squares[i].style.fontSize = Math.floor(squaresize * 3 / 4) + "px";
 	}
 
-	var controlwidth = (game.width - 1) * (squaresize + (2 * border));
+	var controlwidth = (game.width - 1) * squaresize;
 	var minessize = Math.floor(controlwidth - squaresize) / 2;
 	var timesize = Math.ceil(controlwidth - squaresize) / 2;
-	document.getElementById("score").style.width = (controlwidth + squaresize + 2 * border) + "px";
+
+	document.getElementById("game").style.width = (controlwidth + squaresize) + "px";
+	document.getElementById("game").style.fontSize = Math.floor(squaresize * 5 / 8) + "px";
 	document.getElementById("mines").style.width = minessize + "px";
 	document.getElementById("time").style.width = timesize + "px";
 }
@@ -163,9 +162,10 @@ function gameover(win) {
 		for (var j = 0; j < game.width; j++) {
 			if (game.flagged[i][j]) {
 				document.getElementById(i + "-" + j).innerHTML = "&#x1f3f4;";
-				document.getElementById(i + "-" + j).style.color = game.bombs[i][j] ? "green" : "red";
+				document.getElementById(i + "-" + j).className = "flag";
 			} else if (game.bombs[i][j]) {
 				document.getElementById(i + "-" + j).innerHTML = win ? "&#x2690;" : "&#x1f4a3;";
+				document.getElementById(i + "-" + j).className = "bomb";
 			}
 		}
 	}
@@ -199,7 +199,7 @@ function newgame() {
 			game.bombs[i][j] = false;
 			game.seen[i][j] = false;
 			game.flagged[i][j] = false;
-			var square = document.createElement("span");
+			var square = document.createElement("button");
 			square.innerHTML = "&nbsp;";
 			square.id = i + "-" + j;
 			square.addEventListener("click", reveal);
@@ -285,16 +285,16 @@ function init() {
 <div id="game">
 	<div id="score">
 	<span id="mines">0</span>
-	<span id="newgame">&#x263a;</span>
+	<button id="newgame">&#x263a;</button>
 	<span id="time">0</span>
 	</div>
-</div>
-<div id="options">
-	<form action="#" onsubmit="newgame();">
+
+	<form id="options" action="#" onsubmit="newgame();">
 	<div><label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();"></div>
 	<div><label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();"></div>
 	<div><label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();"></div>
 	</form>
+
 </div>
 </body>
 </html>
