@@ -22,6 +22,10 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
 
+/* FIXME: this is missing corner cases, e.g.: */
+/* .1 */
+/* 11 */
+/* Clicking upper-left doesn't reveal lower-right */
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
 	square.style.borderColor = "#ccc";
