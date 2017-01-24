@@ -34,8 +34,6 @@ function expose(row, col) {
 		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
 				if (game.bombs[i][j]) {
 					neighbors++;
-				} else if ((i == row || j == col) && !game.seen[i][j]) {
-					expose(i, j);
 				}
 		}
 	}
@@ -43,6 +41,14 @@ function expose(row, col) {
 	if (neighbors != 0) {
 		square.innerHTML = neighbors;
 		square.className = "n" + neighbors;
+	} else {
+		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
+			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
+					if ((i == row || j == col) && !game.seen[i][j]) {
+						expose(i, j);
+					}
+			}
+		}
 	}
 }
 
