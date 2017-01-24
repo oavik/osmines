@@ -17,7 +17,7 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 #mines, #time { display: inline-block; background: #ccc; border-color: #ccc; }
 </style>
 <script type="text/javascript">
-var game = { width: 10, height: 10, mines: 10, firstclick: true };
+var game = { width: 9, height: 9, mines: 10, firstclick: true };
 
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
@@ -26,6 +26,7 @@ function expose(row, col) {
 	square.removeEventListener("contextmenu", flag);
 
 	game.seen[row][col] = true;
+	game.unclicked--;
 
 	var neighbors = 0;
 
@@ -55,13 +56,14 @@ function reveal(e) {
 	this.style.borderColor = "#ccc";
 	var row = parseInt(this.id);
 	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
-	console.log("click " + row + "," + col);
-	console.log(game.bombs[row][col]);
 
+	/* FIXME */
+	/*
 	if (game.firstclick && game.bombs[row][col]) {
 		game.bombs[row][col] = false;
-		
 	}
+	*/
+
 	game.firstclick = false;
 
 	if (game.bombs[row][col]) {
@@ -70,6 +72,7 @@ function reveal(e) {
 	} else {
 		expose(row, col);
 	}
+	checkwinner();
 }
 
 function flag(e) {
@@ -83,14 +86,23 @@ function flag(e) {
 		this.innerHTML = "&#x2690;";
 		this.removeEventListener("click", reveal);
 		game.flags++;
+		game.unclicked--;
 	} else if (this.innerHTML == "?") {
 		this.innerHTML = "";
 		this.addEventListener("click", reveal);
 		game.flags--;
+		game.unclicked++;
 	} else {
 		this.innerHTML = "?";
 	}
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
+	checkwinner();
+}
+
+function checkwinner() {
+	if (game.unclicked - game.flags == game.mines) {
+		gameover(true);
+	}
 }
 
 function resize() {
@@ -133,6 +145,7 @@ function newgame() {
 	game.seen = new Array();
 	game.time = 0;
 	game.flags = 0;
+	game.unclicked = 0;
 
 	var rows = document.getElementsByClassName("row");
 	for (var i = 0; i < rows.length; i++) {
@@ -153,6 +166,7 @@ function newgame() {
 			square.addEventListener("click", reveal);
 			square.addEventListener("contextmenu", flag);
 			row.appendChild(square);
+			game.unclicked++;
 		}
 		document.getElementById("game").appendChild(row);
 	}
@@ -169,6 +183,7 @@ function newgame() {
 	}
 
 	document.getElementById("mines").innerHTML = game.mines;
+	document.getElementById("newgame").innerHTML = "&#x263a";
 	resize();
 }
 
