@@ -19,8 +19,16 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 <script type="text/javascript">
 var game = { width: 9, height: 9, mines: 10, firstclick: true };
 
+function isflagged(row, col) {
+	var square = document.getElementById(row + "-" + col);
+	console.log(square.innerHTML);
+	if (square.innerHTML != "&nbsp;") {
+		return true;
+	}
+	return false;
+}
+
 function expose(row, col) {
-	/* FIXME: is flagged? */
 	var square = document.getElementById(row + "-" + col);
 	square.style.borderColor = "#ccc";
 	square.removeEventListener("click", reveal);
@@ -46,7 +54,7 @@ function expose(row, col) {
 		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if ((i == row || j == col) && !game.seen[i][j]) {
+					if ((i == row || j == col) && !game.seen[i][j] && !(isflagged(i, j))) {
 						expose(i, j);
 					}
 			}
@@ -113,7 +121,7 @@ function checkwinner() {
 
 function resize() {
 	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
-	var border = Math.ceil(squaresize / 10);
+	var border = Math.ceil(squaresize / 20);
 	squaresize -= border * 2;
 	var squares = document.getElementsByTagName("span");
 	for (var i = 0; i < squares.length; i++) {
