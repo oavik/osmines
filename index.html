@@ -71,12 +71,18 @@ function reveal(e) {
 	var row = parseInt(this.id);
 	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
 
-	/* FIXME */
-	/*
 	if (game.firstclick && game.bombs[row][col]) {
 		game.bombs[row][col] = false;
+		var replaced = false;
+		while (!replaced) {
+			var nrow = Math.floor(Math.random() * game.height);
+			var ncol = Math.floor(Math.random() * game.width);
+			if (!game.bombs[nrow][ncol]) {
+				replaced = true;
+				game.bombs[nrow][ncol] = true;
+			}
+		}
 	}
-	*/
 
 	game.firstclick = false;
 
@@ -172,6 +178,7 @@ function newgame() {
 	game.time = 0;
 	game.flags = 0;
 	game.unclicked = 0;
+	game.firstclick = true;
 
 	var rows = document.getElementsByClassName("row");
 	for (var i = rows.length-1; i >= 0; i--) {
