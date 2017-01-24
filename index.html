@@ -206,8 +206,18 @@ function newgame() {
 	resize();
 }
 
+function options() {
+}
+
 function init() {
 	document.getElementById("newgame").addEventListener("click", newgame);
+	document.getElementById("newgame").addEventListener("contextmenu", options);
+	if (localStorage.getItem("width") == undefined) { localStorage.setItem("width", 10); }
+	if (localStorage.getItem("height") == undefined) { localStorage.setItem("height", 10); }
+	if (localStorage.getItem("mines") == undefined) { localStorage.setItem("mines", 10); }
+	game.width = parseInt(localStorage.getItem("width"));
+	game.height = parseInt(localStorage.getItem("height"));
+	game.mines = parseInt(localStorage.getItem("mines"));
 	newgame();
 	window.onresize = resize;
 }
@@ -220,6 +230,11 @@ function init() {
 	<span id="newgame">&#x263a;</span>
 	<span id="time">0</span>
 	</div>
+</div>
+<div id="options">
+	<label for="width">Width:</label><input type="number" min="2" max="99" id="width">
+	<label for="height">Height:</label><input type="number" min="2" max="99" id="height">
+	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines">
 </div>
 </body>
 </html>
