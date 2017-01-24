@@ -19,15 +19,6 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 <script type="text/javascript">
 var game = { width: 9, height: 9, mines: 10, firstclick: true };
 
-function isflagged(row, col) {
-	var square = document.getElementById(row + "-" + col);
-	console.log(square.innerHTML);
-	if (square.innerHTML != "&nbsp;") {
-		return true;
-	}
-	return false;
-}
-
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
 	square.style.borderColor = "#ccc";
@@ -54,7 +45,7 @@ function expose(row, col) {
 		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if ((i == row || j == col) && !game.seen[i][j] && !(isflagged(i, j))) {
+					if ((i == row || j == col) && !game.seen[i][j] && !game.flagged[i][j]) {
 						expose(i, j);
 					}
 			}
@@ -94,20 +85,23 @@ function reveal(e) {
 function flag(e) {
 	e.preventDefault();
 
+	var row = parseInt(this.id);
+	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
+
 	if (game.timer == undefined) {
 		game.timer = window.setInterval(addtime, 1000);
 	}
 
-	if (this.innerHTML == "&nbsp;") {
-		if (game.flags < game.mines) {
-			this.innerHTML = "&#x2690;";
-			this.removeEventListener("click", reveal);
-			game.flags++;
-		}
-	} else {
+	if (game.flagged[row][col]) {
 		this.innerHTML = "&nbsp;";
 		this.addEventListener("click", reveal);
 		game.flags--;
+		game.flagged[row][col] = false;
+	} else if (game.flags < game.mines) {
+		this.innerHTML = "&#x2690;";
+		this.removeEventListener("click", reveal);
+		game.flags++;
+		game.flagged[row][col] = true;
 	}
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
 	checkwinner();
@@ -149,9 +143,11 @@ function gameover(win) {
 
 	for (var i = 0; i < game.height; i++) {
 		for (var j = 0; j < game.width; j++) {
-			if (game.bombs[i][j]) {
+			if (game.flagged[i][j]) {
+				document.getElementById(i + "-" + j).innerHTML = "&#x1f3f4;";
+				document.getElementById(i + "-" + j).style.color = game.bombs[i][j] ? "green" : "red";
+			} else if (game.bombs[i][j]) {
 				document.getElementById(i + "-" + j).innerHTML = win ? "&#x2690;" : "&#x1f4a3;";
-/* bomb: "&#x1f4a3;" */
 			}
 		}
 	}
@@ -162,6 +158,7 @@ function gameover(win) {
 function newgame() {
 	game.bombs = new Array();
 	game.seen = new Array();
+	game.flagged = new Array();
 	game.time = 0;
 	game.flags = 0;
 	game.unclicked = 0;
@@ -174,11 +171,13 @@ function newgame() {
 	for (var i = 0; i < game.height; i++) {
 		game.bombs[i] = new Array();
 		game.seen[i] = new Array();
+		game.flagged[i] = new Array();
 		var row = document.createElement("div");
 		row.className = "row";
 		for (var j = 0; j < game.width; j++) {
 			game.bombs[i][j] = false;
 			game.seen[i][j] = false;
+			game.flagged[i][j] = false;
 			var square = document.createElement("span");
 			square.innerHTML = "&nbsp;";
 			square.id = i + "-" + j;
