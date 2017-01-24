@@ -23,10 +23,6 @@ span { display: inline-block; border-style: solid; border-left-color: #eee; bord
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
 
-/* FIXME: this is missing corner cases, e.g.: */
-/* .1 */
-/* 11 */
-/* Clicking upper-left doesn't reveal lower-right */
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
 	square.style.borderColor = "#ccc";
@@ -53,7 +49,7 @@ function expose(row, col) {
 		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if ((i == row || j == col) && !game.seen[i][j] && !game.flagged[i][j]) {
+					if (!(i == row && j == col) && !game.seen[i][j] && !game.flagged[i][j] && !game.bombs[i][j]) {
 						expose(i, j);
 					}
 			}
