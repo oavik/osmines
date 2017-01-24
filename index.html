@@ -54,8 +54,6 @@ function placebomb() {
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
 	square.disabled = true;
-	square.removeEventListener("click", reveal);
-	square.removeEventListener("contextmenu", flag);
 
 	game.seen[row][col] = true;
 	game.unclicked--;
@@ -123,13 +121,13 @@ function flag(e) {
 	if (game.flagged[row][col]) {
 		this.innerHTML = "&nbsp;";
 		this.addEventListener("click", reveal);
-		game.flags--;
 		game.flagged[row][col] = false;
+		game.flags--;
 	} else if (game.flags < game.mines) {
 		this.innerHTML = icons.whiteflag;
 		this.removeEventListener("click", reveal);
-		game.flags++;
 		game.flagged[row][col] = true;
+		game.flags++;
 	}
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
 	checkwinner();
@@ -141,13 +139,17 @@ function checkwinner() {
 	}
 }
 
-function resize() {
-	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
+function allsquares(fn) {
 	var squares = document.getElementsByTagName("button");
 	for (var i = 0; i < squares.length; i++) {
-		squares[i].style.width = squaresize + "px";
-		squares[i].style.height = squaresize + "px";
+		fn(squares[i]);
 	}
+}
+
+
+function resize() {
+	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
+	allsquares(function (s) { s.style.width = squaresize + "px"; s.style.height = squaresize + "px"; });
 
 	var controlwidth = (game.width - 1) * squaresize;
 	var minessize = Math.floor(controlwidth - squaresize) / 2;
@@ -179,6 +181,8 @@ function gameover(win) {
 			}
 		}
 	}
+
+	allsquares(function (s) { s.removeEventListener("onclick", reveal); });
 
 	document.getElementById("newgame").innerHTML = win ?  icons.cool : icons.sad;
 }
