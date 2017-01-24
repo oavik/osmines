@@ -91,24 +91,22 @@ function flag(e) {
 	}
 
 	if (this.innerHTML == "&nbsp;") {
-		this.innerHTML = "&#x2690;";
-		this.removeEventListener("click", reveal);
-		game.flags++;
-		game.unclicked--;
-	} else if (this.innerHTML == "?") {
-		this.innerHTML = "";
+		if (game.flags < game.mines) {
+			this.innerHTML = "&#x2690;";
+			this.removeEventListener("click", reveal);
+			game.flags++;
+		}
+	} else {
+		this.innerHTML = "&nbsp;";
 		this.addEventListener("click", reveal);
 		game.flags--;
-		game.unclicked++;
-	} else {
-		this.innerHTML = "?";
 	}
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
 	checkwinner();
 }
 
 function checkwinner() {
-	if (game.unclicked - game.flags == game.mines) {
+	if (game.unclicked == game.mines) {
 		gameover(true);
 	}
 }
