@@ -31,7 +31,8 @@ button { font-size: inherit; }
 </style>
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
-var icons = { bomb: "&#x1f4a3;",
+var icons = {
+	bomb: "&#x1f4a3;",
 	whiteflag: "&#x2690;",
 	blackflag: "&#x1f3f4;",
 	happy: "&#x263a;",
@@ -182,8 +183,7 @@ function gameover(win) {
 		}
 	}
 
-	allsquares(function (s) { s.removeEventListener("onclick", reveal); });
-
+	allsquares(function (s) { s.removeEventListener("click", reveal); });
 	document.getElementById("newgame").innerHTML = win ?  icons.cool : icons.sad;
 }
 
