@@ -31,6 +31,25 @@ button { font-size: inherit; }
 </style>
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
+var icons = { bomb: "&#x1f4a3;",
+	whiteflag: "&#x2690;",
+	blackflag: "&#x1f3f4;",
+	happy: "&#x263a;",
+	sad: "&#x2639;",
+	cool: "&#x1f60e;"
+};
+
+function placebomb() {
+	while (true) {
+		var row = Math.floor(Math.random() * game.height);
+		var col = Math.floor(Math.random() * game.width);
+
+		if (!game.bombs[row][col]) {
+			game.bombs[row][col] = true;
+			break;
+		}
+	}
+}
 
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
@@ -77,19 +96,10 @@ function reveal(e) {
 	var row = parseInt(this.id);
 	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
 
-	if (game.firstclick && game.bombs[row][col]) {
+	while (game.firstclick && game.bombs[row][col]) {
 		game.bombs[row][col] = false;
-		var replaced = false;
-		while (!replaced) {
-			var nrow = Math.floor(Math.random() * game.height);
-			var ncol = Math.floor(Math.random() * game.width);
-			if (!game.bombs[nrow][ncol]) {
-				replaced = true;
-				game.bombs[nrow][ncol] = true;
-			}
-		}
+		placebomb();
 	}
-
 	game.firstclick = false;
 
 	if (game.bombs[row][col]) {
@@ -116,7 +126,7 @@ function flag(e) {
 		game.flags--;
 		game.flagged[row][col] = false;
 	} else if (game.flags < game.mines) {
-		this.innerHTML = "&#x2690;";
+		this.innerHTML = icons.whiteflag;
 		this.removeEventListener("click", reveal);
 		game.flags++;
 		game.flagged[row][col] = true;
@@ -161,16 +171,16 @@ function gameover(win) {
 	for (var i = 0; i < game.height; i++) {
 		for (var j = 0; j < game.width; j++) {
 			if (game.flagged[i][j]) {
-				document.getElementById(i + "-" + j).innerHTML = "&#x1f3f4;";
+				document.getElementById(i + "-" + j).innerHTML = icons.blackflag;
 				document.getElementById(i + "-" + j).className = "flag";
 			} else if (game.bombs[i][j]) {
-				document.getElementById(i + "-" + j).innerHTML = win ? "&#x2690;" : "&#x1f4a3;";
+				document.getElementById(i + "-" + j).innerHTML = win ? icons.whiteflag : icons.bomb;
 				document.getElementById(i + "-" + j).className = "bomb";
 			}
 		}
 	}
 
-	document.getElementById("newgame").innerHTML = win ?  "&#x1f60e;" : "&#x2639;";
+	document.getElementById("newgame").innerHTML = win ?  icons.cool : icons.sad;
 }
 
 function newgame() {
@@ -211,18 +221,11 @@ function newgame() {
 	}
 
 	for (var i = 0; i < game.mines; i++ ) {
-		var row = Math.floor(Math.random() * game.height);
-		var col = Math.floor(Math.random() * game.width);
-
-		if (game.bombs[row][col]) {
-			i--;
-		} else {
-			game.bombs[row][col] = true;
-		}
+		placebomb();
 	}
 
 	document.getElementById("mines").innerHTML = game.mines;
-	document.getElementById("newgame").innerHTML = "&#x263a";
+	document.getElementById("newgame").innerHTML = icons.happy;
 	resize();
 }
 
@@ -284,8 +287,8 @@ function init() {
 <body onload="init();">
 <div id="game">
 	<div id="score">
-	<span id="mines">0</span>
-	<button id="newgame">&#x263a;</button>
+	<span id="mines"></span>
+	<button id="newgame"></button>
 	<span id="time">0</span>
 	</div>
 
