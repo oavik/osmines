@@ -21,11 +21,11 @@ button { font-size: inherit; }
 .n7 { color: gray; }
 .n8 { color: turquoise; }
 .bomb { color: black; }
-.flag.bomb { color: red; }
-.flag.nobomb { color: green; }
+.flag.bomb { color: green ! important; }
+.flag { color: red; }
 #score { background: #ccc; }
 #mines, #time { display: inline-block; }
-#options { display: none; }
+#options { display: none; color: black; }
 #options label { width: 10em; }
 #options input { width: 3em; }
 </style>
@@ -167,23 +167,34 @@ function addtime() {
 	document.getElementById("time").innerHTML = game.time;
 }
 
+function disable(s, d) {
+	if (d == undefined) {
+		d = false;
+	}
+	s.removeEventListener("click", reveal);
+	s.removeEventListener("contextmenu", flag);
+	s.disabled = d;
+}
+
 function gameover(win) {
 	window.clearInterval(game.timer);
 	game.timer = undefined;
 
 	for (var i = 0; i < game.height; i++) {
 		for (var j = 0; j < game.width; j++) {
+			if (game.bombs[i][j]) {
+				document.getElementById(i + "-" + j).innerHTML = win ? icons.whiteflag : icons.bomb;
+				document.getElementById(i + "-" + j).className += " bomb";
+			}
+
 			if (game.flagged[i][j]) {
 				document.getElementById(i + "-" + j).innerHTML = icons.blackflag;
-				document.getElementById(i + "-" + j).className = "flag";
-			} else if (game.bombs[i][j]) {
-				document.getElementById(i + "-" + j).innerHTML = win ? icons.whiteflag : icons.bomb;
-				document.getElementById(i + "-" + j).className = "bomb";
-			}
+				document.getElementById(i + "-" + j).className += " flag";
+			} 
 		}
 	}
 
-	allsquares(function (s) { s.removeEventListener("click", reveal); });
+	allsquares(disable);
 	document.getElementById("newgame").innerHTML = win ?  icons.cool : icons.sad;
 }
 
@@ -233,10 +244,8 @@ function newgame() {
 	resize();
 }
 
-function options(e) {
-	e.preventDefault();
-
-	document.getElementById("options").style.visibility = "visible";
+function selectnewgame(e) {
+	document.getElementById("options").style.display = "block";
 }
 
 function update() {
@@ -273,8 +282,7 @@ function update() {
 }
 
 function init() {
-	document.getElementById("newgame").addEventListener("click", newgame);
-	document.getElementById("newgame").addEventListener("contextmenu", options);
+	document.getElementById("newgame").addEventListener("click", selectnewgame);
 	/*
 	if (localStorage.getItem("width") == undefined) { localStorage.setItem("width", 10); }
 	if (localStorage.getItem("height") == undefined) { localStorage.setItem("height", 10); }
@@ -297,9 +305,9 @@ function init() {
 	</div>
 
 	<form id="options" action="#" onsubmit="newgame();">
-	<div><label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();"></div>
-	<div><label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();"></div>
-	<div><label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();"></div>
+	<label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();">
+	<label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();">
+	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();">
 	</form>
 
 </div>
