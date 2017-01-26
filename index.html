@@ -162,15 +162,6 @@ function addtime() {
 	document.getElementById("time").innerHTML = game.time;
 }
 
-function disable(s, d) {
-	if (d == undefined) {
-		d = true;
-	}
-	s.removeEventListener("click", reveal);
-	s.removeEventListener("contextmenu", flag);
-	s.disabled = d;
-}
-
 function gameover(win) {
 	window.clearInterval(game.timer);
 	game.timer = undefined;
@@ -178,18 +169,20 @@ function gameover(win) {
 	for (var i = 0; i < game.height; i++) {
 		for (var j = 0; j < game.width; j++) {
 			if (game.squares[i][j].bomb) {
-				document.getElementById(i + "-" + j).innerHTML = win ? icons.whiteflag : icons.bomb;
-				document.getElementById(i + "-" + j).className += " bomb";
+				game.squares[i][j].innerHTML = win ? icons.whiteflag : icons.bomb;
+				game.squares[i][j].className += " bomb";
 			}
 
 			if (game.squares[i][j].flagged) {
-				document.getElementById(i + "-" + j).innerHTML = icons.blackflag;
-				document.getElementById(i + "-" + j).className += " flag";
+				game.squares[i][j].innerHTML = icons.blackflag;
+				game.squares[i][j].className += " flag";
 			} 
+
+			game.squares[i][j].removeEventListener("click", reveal);
+			game.squares[i][j].removeEventListener("contextmenu", flag);
 		}
 	}
 
-	allsquares(disable);
 	document.getElementById("newgame").innerHTML = win ?  icons.cool : icons.sad;
 }
 
@@ -213,7 +206,6 @@ function newgame() {
 	document.getElementById("score").style.visibility = "visible";
 	document.getElementById("newgame").style.visibility = "visible";
 
-	game.squares = new Array();
 	game.time = 0;
 	game.flags = 0;
 	game.unclicked = 0;
@@ -224,6 +216,7 @@ function newgame() {
 		rows[i].parentNode.removeChild(rows[i]);
 	}
 
+	game.squares = new Array();
 	for (var i = 0; i < game.height; i++) {
 		game.squares[i] = new Array();
 		var row = document.createElement("div");
@@ -246,9 +239,7 @@ function newgame() {
 }
 
 function selectnewgame(e) {
-	var form = document.getElementById("options");
-	form.style.width = document.getElementById("game").style.width;
-	form.style.display = "block";
+	document.getElementById("options").style.display = "block";
 
 	game.oldwidth = game.width;
 	game.oldheight = game.height;
@@ -260,11 +251,11 @@ function selectnewgame(e) {
 }
 
 function oldgame() {
+	document.getElementById("options").style.display = "none";
+
 	game.width = game.oldwidth;
 	game.height = game.oldheight;
 	game.mines = game.oldmines;
-
-	document.getElementById("options").style.display = "none";
 	
 	document.getElementById("score").style.visibility = "visible";
 	document.getElementById("newgame").style.visibility = "visible";
