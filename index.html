@@ -151,15 +151,15 @@ function checkwinner() {
 function allsquares(fn) {
 	var squares = document.getElementsByTagName("button");
 	for (var i = 0; i < squares.length; i++) {
-		fn(squares[i]);
+		if (squares[i].id != "newgame") {
+			fn(squares[i]);
+		}
 	}
 }
-
 
 function resize() {
 	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
 	document.getElementById("game").style.fontSize = Math.floor(squaresize * .75) + "px";
-	document.getElementById("game").style.width = (1.5 * game.width) + "em";
 }
 
 function addtime() {
@@ -199,6 +199,7 @@ function gameover(win) {
 }
 
 function newgame() {
+	document.getElementById("game").style.width = (1.5 * game.width) + "em";
 	document.getElementById("options").style.display = "none";
 	document.getElementById("score").style.visibility = "visible";
 	document.getElementById("newgame").style.visibility = "visible";
@@ -257,6 +258,7 @@ function selectnewgame(e) {
 	game.oldmines = game.mines;
 
 	document.getElementById("score").style.visibility = "hidden";
+	document.getElementById("newgame").style.visibility = "hidden";
 	allsquares(function (s) { s.style.visibility = "hidden"; });
 }
 
@@ -268,6 +270,7 @@ function oldgame() {
 	document.getElementById("options").style.display = "none";
 	
 	document.getElementById("score").style.visibility = "visible";
+	document.getElementById("newgame").style.visibility = "visible";
 	allsquares(function (s) { s.style.visibility = "visible"; });
 }
 
