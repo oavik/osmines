@@ -53,8 +53,8 @@ function placebomb() {
 		var row = Math.floor(Math.random() * game.height);
 		var col = Math.floor(Math.random() * game.width);
 
-		if (!game.bombs[row][col]) {
-			game.bombs[row][col] = true;
+		if (!game.squares[row][col].bomb) {
+			game.squares[row][col].bomb = true;
 			break;
 		}
 	}
@@ -71,7 +71,7 @@ function expose(row, col) {
 
 	for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-			if (game.bombs[i][j]) {
+			if (game.squares[i][j].bomb) {
 				neighbors++;
 			}
 		}
@@ -84,7 +84,7 @@ function expose(row, col) {
 		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if (!(i == row && j == col) && !game.seen[i][j] && !game.flagged[i][j] && !game.bombs[i][j]) {
+					if (!(i == row && j == col) && !game.seen[i][j] && !game.flagged[i][j] && !game.squares[i][j].bomb) {
 						expose(i, j);
 					}
 			}
@@ -101,13 +101,13 @@ function reveal(e) {
 
 	this.disabled = true;
 
-	while (game.firstclick && game.bombs[this.row][this.col]) {
-		game.bombs[this.row][this.col] = false;
+	while (game.firstclick && this.bomb) {
+		this.bomb = false;
 		placebomb();
 	}
 	game.firstclick = false;
 
-	if (game.bombs[this.row][this.col]) {
+	if (this.bomb) {
 		gameover(false);
 	} else {
 		expose(this.row, this.col);
@@ -177,7 +177,7 @@ function gameover(win) {
 
 	for (var i = 0; i < game.height; i++) {
 		for (var j = 0; j < game.width; j++) {
-			if (game.bombs[i][j]) {
+			if (game.squares[i][j].bomb) {
 				document.getElementById(i + "-" + j).innerHTML = win ? icons.whiteflag : icons.bomb;
 				document.getElementById(i + "-" + j).className += " bomb";
 			}
@@ -193,15 +193,29 @@ function gameover(win) {
 	document.getElementById("newgame").innerHTML = win ?  icons.cool : icons.sad;
 }
 
+function Square(row, col) {
+	var square = document.createElement("button");
+	square.innerHTML = "&nbsp;";
+	square.id = row + "-" + col;
+	square.row = row;
+	square.col = col;
+	square.bomb = false;
+	square.seen = false;
+	square.flagged = false;
+	square.addEventListener("click", reveal);
+	square.addEventListener("contextmenu", flag);
+	return square;
+}
+
 function newgame() {
 	document.getElementById("game").style.width = (1.5 * game.width) + "em";
 	document.getElementById("options").style.display = "none";
 	document.getElementById("score").style.visibility = "visible";
 	document.getElementById("newgame").style.visibility = "visible";
 
-	game.bombs = new Array();
 	game.seen = new Array();
 	game.flagged = new Array();
+	game.squares = new Array();
 	game.time = 0;
 	game.flags = 0;
 	game.unclicked = 0;
@@ -213,23 +227,16 @@ function newgame() {
 	}
 
 	for (var i = 0; i < game.height; i++) {
-		game.bombs[i] = new Array();
 		game.seen[i] = new Array();
 		game.flagged[i] = new Array();
+		game.squares[i] = new Array();
 		var row = document.createElement("div");
 		row.className = "row";
 		for (var j = 0; j < game.width; j++) {
-			game.bombs[i][j] = false;
 			game.seen[i][j] = false;
 			game.flagged[i][j] = false;
-			var square = document.createElement("button");
-			square.innerHTML = "&nbsp;";
-			square.id = i + "-" + j;
-			square.row = i;
-			square.col = j;
-			square.addEventListener("click", reveal);
-			square.addEventListener("contextmenu", flag);
-			row.appendChild(square);
+			game.squares[i][j] = new Square(i, j);
+			row.appendChild(game.squares[i][j]);
 			game.unclicked++;
 		}
 		document.getElementById("game").appendChild(row);
