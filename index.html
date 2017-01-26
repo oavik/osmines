@@ -70,10 +70,13 @@ function expose(row, col) {
 	game.unclicked--;
 
 	var neighbors = 0;
+	var toexpose = new Array();
 	for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
 			if (game.squares[i][j].bomb) {
 				neighbors++;
+			} else {
+				toexpose.push({ row: i, col: j});
 			}
 		}
 	}
@@ -81,14 +84,9 @@ function expose(row, col) {
 	if (neighbors != 0) {
 		square.innerHTML = neighbors;
 		square.className = "n" + neighbors;
-		return;
-	}
-
-	for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
-		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-				if (!game.squares[i][j].bomb) {
-					expose(i, j);
-				}
+	} else {
+		for (var i = 0; i < toexpose.length; i++) {
+			expose(toexpose[i].row, toexpose[i].col);
 		}
 	}
 }
