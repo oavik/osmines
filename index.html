@@ -100,19 +100,17 @@ function reveal(e) {
 	}
 
 	this.disabled = true;
-	var row = parseInt(this.id);
-	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
 
-	while (game.firstclick && game.bombs[row][col]) {
-		game.bombs[row][col] = false;
+	while (game.firstclick && game.bombs[this.row][this.col]) {
+		game.bombs[this.row][this.col] = false;
 		placebomb();
 	}
 	game.firstclick = false;
 
-	if (game.bombs[row][col]) {
+	if (game.bombs[this.row][this.col]) {
 		gameover(false);
 	} else {
-		expose(row, col);
+		expose(this.row, this.col);
 	}
 	checkwinner();
 }
@@ -120,22 +118,19 @@ function reveal(e) {
 function flag(e) {
 	e.preventDefault();
 
-	var row = parseInt(this.id);
-	var col = parseInt(this.id.substring(this.id.indexOf("-") + 1));
-
 	if (game.timer == undefined) {
 		game.timer = window.setInterval(addtime, 1000);
 	}
 
-	if (game.flagged[row][col]) {
+	if (game.flagged[this.row][this.col]) {
 		this.innerHTML = "&nbsp;";
 		this.addEventListener("click", reveal);
-		game.flagged[row][col] = false;
+		game.flagged[this.row][this.col] = false;
 		game.flags--;
 	} else if (game.flags < game.mines) {
 		this.innerHTML = icons.whiteflag;
 		this.removeEventListener("click", reveal);
-		game.flagged[row][col] = true;
+		game.flagged[this.row][this.col] = true;
 		game.flags++;
 	}
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
@@ -230,6 +225,8 @@ function newgame() {
 			var square = document.createElement("button");
 			square.innerHTML = "&nbsp;";
 			square.id = i + "-" + j;
+			square.row = i;
+			square.col = j;
 			square.addEventListener("click", reveal);
 			square.addEventListener("contextmenu", flag);
 			row.appendChild(square);
@@ -277,6 +274,7 @@ function update() {
 	var width = document.getElementById("width");
 	var height = document.getElementById("height");
 	var nmines = document.getElementById("nmines");
+
 	if (isNaN(parseInt(width.value))) {
 		width.value = game.width.toString();
 	} else if (parseInt(width.value) < 2) {
@@ -308,14 +306,6 @@ function update() {
 
 function init() {
 	document.getElementById("newgame").addEventListener("click", selectnewgame);
-	/*
-	if (localStorage.getItem("width") == undefined) { localStorage.setItem("width", 10); }
-	if (localStorage.getItem("height") == undefined) { localStorage.setItem("height", 10); }
-	if (localStorage.getItem("mines") == undefined) { localStorage.setItem("mines", 10); }
-	game.width = parseInt(localStorage.getItem("width"));
-	game.height = parseInt(localStorage.getItem("height"));
-	game.mines = parseInt(localStorage.getItem("mines"));
-	*/
 	newgame();
 	window.onresize = resize;
 }
