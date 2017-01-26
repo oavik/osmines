@@ -84,7 +84,7 @@ function expose(row, col) {
 		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if (!(i == row && j == col) && !game.squares[i][j].seen && !game.flagged[i][j] && !game.squares[i][j].bomb) {
+					if (!(i == row && j == col) && !game.squares[i][j].seen && !game.squares[i][j].flagged && !game.squares[i][j].bomb) {
 						expose(i, j);
 					}
 			}
@@ -122,15 +122,15 @@ function flag(e) {
 		game.timer = window.setInterval(addtime, 1000);
 	}
 
-	if (game.flagged[this.row][this.col]) {
+	if (this.flagged) {
 		this.innerHTML = "&nbsp;";
 		this.addEventListener("click", reveal);
-		game.flagged[this.row][this.col] = false;
+		this.flagged = false;
 		game.flags--;
 	} else if (game.flags < game.mines) {
 		this.innerHTML = icons.whiteflag;
 		this.removeEventListener("click", reveal);
-		game.flagged[this.row][this.col] = true;
+		this.flagged = true;
 		game.flags++;
 	}
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
@@ -182,7 +182,7 @@ function gameover(win) {
 				document.getElementById(i + "-" + j).className += " bomb";
 			}
 
-			if (game.flagged[i][j]) {
+			if (game.squares[i][j].flagged) {
 				document.getElementById(i + "-" + j).innerHTML = icons.blackflag;
 				document.getElementById(i + "-" + j).className += " flag";
 			} 
@@ -213,7 +213,6 @@ function newgame() {
 	document.getElementById("score").style.visibility = "visible";
 	document.getElementById("newgame").style.visibility = "visible";
 
-	game.flagged = new Array();
 	game.squares = new Array();
 	game.time = 0;
 	game.flags = 0;
@@ -226,12 +225,10 @@ function newgame() {
 	}
 
 	for (var i = 0; i < game.height; i++) {
-		game.flagged[i] = new Array();
 		game.squares[i] = new Array();
 		var row = document.createElement("div");
 		row.className = "row";
 		for (var j = 0; j < game.width; j++) {
-			game.flagged[i][j] = false;
 			game.squares[i][j] = new Square(i, j);
 			row.appendChild(game.squares[i][j]);
 			game.unclicked++;
