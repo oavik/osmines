@@ -94,9 +94,9 @@ function expose(row, col) {
 
 function reveal(e) {
 	e.preventDefault();
-
-	if (game.timer == undefined) {
-		game.timer = window.setInterval(addtime, 1000);
+	checktimer();
+	if (this.flagged) {
+		return;
 	}
 
 	this.disabled = true;
@@ -117,24 +117,25 @@ function reveal(e) {
 
 function flag(e) {
 	e.preventDefault();
-
-	if (game.timer == undefined) {
-		game.timer = window.setInterval(addtime, 1000);
-	}
+	checktimer();
 
 	if (this.flagged) {
 		this.innerHTML = "&nbsp;";
-		this.addEventListener("click", reveal);
 		this.flagged = false;
 		game.flags--;
 	} else if (game.flags < game.mines) {
 		this.innerHTML = icons.whiteflag;
-		this.removeEventListener("click", reveal);
 		this.flagged = true;
 		game.flags++;
 	}
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
 	checkwinner();
+}
+
+function checktimer() {
+	if (game.timer == undefined) {
+		game.timer = window.setInterval(function () { document.getElementById("time").innerHTML = ++game.time; }, 1000);
+	}
 }
 
 function checkwinner() {
@@ -155,11 +156,6 @@ function allsquares(fn) {
 function resize() {
 	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
 	document.getElementById("game").style.fontSize = Math.floor(squaresize * .65) + "px";
-}
-
-function addtime() {
-	game.time++;
-	document.getElementById("time").innerHTML = game.time;
 }
 
 function gameover(win) {
