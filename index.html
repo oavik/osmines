@@ -282,19 +282,13 @@ function update() {
 	game.height = parseInt(height.value);
 	game.mines = parseInt(nmines.value);
 }
-
-function init() {
-	document.getElementById("newgame").addEventListener("click", selectnewgame);
-	newgame();
-	window.onresize = resize;
-}
 </script>
 </head>
-<body onload="init();">
+<body onload="newgame();" onresize="resize();">
 <div id="game">
 	<div id="score">
 	<span id="mines"></span>
-	<button id="newgame"></button>
+	<button id="newgame" onclick="selectnewgame();"></button>
 	<span id="time">0</span>
 	</div>
 
