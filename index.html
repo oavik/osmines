@@ -259,33 +259,23 @@ function oldgame() {
 }
 
 function update() {
+	function verifyrange(input, def, low, high) {
+		if (isNaN(parseInt(input.value))) {
+			input.value = def.toString();
+		} else if (parseInt(input.value) < low) {
+			input.value = low.toString();
+		} else if (parseInt(input.value) > high) {
+			input.value = high.toString();
+		}
+	}
+
 	var width = document.getElementById("width");
 	var height = document.getElementById("height");
 	var nmines = document.getElementById("nmines");
 
-	if (isNaN(parseInt(width.value))) {
-		width.value = game.width.toString();
-	} else if (parseInt(width.value) < 2) {
-		width.value = "2";
-	} else if (parseInt(width.value) > 99) {
-		width.value = "99";
-	}
-
-	if (isNaN(parseInt(height.value))) {
-		height.value = game.height.toString();
-	} else if (parseInt(height.value) < 2) {
-		height.value = "2";
-	} else if (parseInt(height.value) > 99) {
-		height.value = "99";
-	}
-
-	if (isNaN(parseInt(nmines.value))) {
-		nmines.value = game.nmines.toString();
-	} else if (parseInt(nmines.value) < 1) {
-		nmines.value = "1";
-	} else if (parseInt(nmines.value) > ((width.value * height.value) * 3 / 4)) {
-		nmines.value = Math.floor(((width.value * height.value) * 3 / 4)).toString();
-	}
+	verifyrange(width, game.width, 2, 99);
+	verifyrange(height, game.height, 2, 99);
+	verifyrange(nmines, game.mines, 1, Math.floor(((width.value * height.value) * 3 / 4)));
 
 	game.width = parseInt(width.value);
 	game.height = parseInt(height.value);
