@@ -62,6 +62,9 @@ function placebomb() {
 
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
+	if (square.seen || square.flagged) {
+		return;
+	}
 	square.disabled = true;
 	square.seen = true;
 	game.unclicked--;
@@ -83,7 +86,7 @@ function expose(row, col) {
 		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if (!(i == row && j == col) && !game.squares[i][j].seen && !game.squares[i][j].flagged && !game.squares[i][j].bomb) {
+					if (!game.squares[i][j].bomb) {
 						expose(i, j);
 					}
 			}
