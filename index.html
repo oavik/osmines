@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#ffffff">
 <style type="text/css">
 * { padding: 0; text-align: center; vertical-align: top; }
-#game { margin-left: auto; margin-right: auto; }
+#game { margin-top: 0; margin-left: auto; margin-right: auto; }
 button { font-size: inherit; width: 1.5em; height: 1.5em; }
 button[disabled] { border: none; }
 .n1 { color: blue; }
@@ -27,6 +27,8 @@ button[disabled] { border: none; }
 .flag { color: red; }
 #score { background: #ccc; }
 #mines, #time { display: inline-block; }
+#mines { float: left; }
+#time { float: right; }
 #options { display: none; color: black; }
 #options button { width: 50%; }
 label { float: left; }
@@ -156,16 +158,8 @@ function allsquares(fn) {
 
 function resize() {
 	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
-	//allsquares(function (s) { s.style.width = squaresize + "px"; s.style.height = squaresize + "px"; });
-
-	var controlwidth = game.width + "em";
-	var minessize = Math.floor(controlwidth - squaresize) / 2;
-	var timesize = Math.ceil(controlwidth - squaresize) / 2;
-
-	document.getElementById("game").style.fontSize = Math.floor(squaresize / 4) + "px";
+	document.getElementById("game").style.fontSize = Math.floor(squaresize * .75) + "px";
 	document.getElementById("game").style.width = (1.5 * game.width) + "em";
-	document.getElementById("mines").style.width = minessize + "px";
-	document.getElementById("time").style.width = timesize + "px";
 }
 
 function addtime() {
