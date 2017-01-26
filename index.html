@@ -12,7 +12,7 @@
 <style type="text/css">
 * { padding: 0; text-align: center; vertical-align: top; }
 #game { margin-left: auto; margin-right: auto; }
-button { font-size: inherit; }
+button { font-size: inherit; width: 1.5em; height: 1.5em; }
 button[disabled] { border: none; }
 .n1 { color: blue; }
 .n2 { color: green; }
@@ -28,10 +28,13 @@ button[disabled] { border: none; }
 #score { background: #ccc; }
 #mines, #time { display: inline-block; }
 #options { display: none; color: black; }
+/*
 #options button { width: 50%; }
 label { float: left; }
-input[type=number] { float: right; }
+input { font-size: inherit; }
+input[type=number] { float: right; width: 4em; }
 input[type=submit] { width: 50%; }
+*/
 </style>
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
@@ -153,20 +156,15 @@ function allsquares(fn) {
 
 
 function resize() {
-	console.log("Window width: " + window.innerWidth + "; game width: " + game.width);
-	console.log("=" + (window.innerWidth / game.width));
-	console.log("Window height: " + window.innerHeight + "; game height: " + game.height);
-	console.log("=" + (window.innerHeight / (game.height + 1)));
 	var squaresize = Math.floor(Math.min(window.innerWidth / game.width, window.innerHeight / (game.height + 1)));
-	console.log("squares: " + squaresize);
-	allsquares(function (s) { s.style.width = squaresize + "px"; s.style.height = squaresize + "px"; });
+	//allsquares(function (s) { s.style.width = squaresize + "px"; s.style.height = squaresize + "px"; });
 
-	var controlwidth = (game.width - 1) * squaresize;
+	var controlwidth = game.width + "em";
 	var minessize = Math.floor(controlwidth - squaresize) / 2;
 	var timesize = Math.ceil(controlwidth - squaresize) / 2;
 
-	document.getElementById("game").style.width = (controlwidth + squaresize) + "px";
-	document.getElementById("game").style.fontSize = Math.floor(squaresize * 3 / 4) + "px";
+	document.getElementById("game").style.fontSize = Math.floor(squaresize / 4) + "px";
+	document.getElementById("game").style.width = (1.5 * game.width) + "em";
 	document.getElementById("mines").style.width = minessize + "px";
 	document.getElementById("time").style.width = timesize + "px";
 }
@@ -178,7 +176,7 @@ function addtime() {
 
 function disable(s, d) {
 	if (d == undefined) {
-		d = false;
+		d = true;
 	}
 	s.removeEventListener("click", reveal);
 	s.removeEventListener("contextmenu", flag);
@@ -341,7 +339,7 @@ function init() {
 	<label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();"><br>
 	<label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();"><br>
 	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();"><br>
-	<input type="submit" value="New Game" onclick="newgame(); return false;"><input type="submit" value="Cancel" onclick="oldgame(); return false;">
+	<input type="submit" value="Start" onclick="newgame(); return false;"><input type="submit" value="Cancel" onclick="oldgame(); return false;">
 	</form>
 
 </div>
