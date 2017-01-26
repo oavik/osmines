@@ -70,7 +70,6 @@ function expose(row, col) {
 	game.unclicked--;
 
 	var neighbors = 0;
-
 	for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
 			if (game.squares[i][j].bomb) {
@@ -82,14 +81,14 @@ function expose(row, col) {
 	if (neighbors != 0) {
 		square.innerHTML = neighbors;
 		square.className = "n" + neighbors;
-	} else {
-		square.innerHTML = "&nbsp;";
-		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
-			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if (!game.squares[i][j].bomb) {
-						expose(i, j);
-					}
-			}
+		return;
+	}
+
+	for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
+		for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
+				if (!game.squares[i][j].bomb) {
+					expose(i, j);
+				}
 		}
 	}
 }
@@ -114,6 +113,7 @@ function reveal(e) {
 	} else {
 		expose(this.row, this.col);
 	}
+
 	checkwinner();
 }
 
@@ -130,6 +130,7 @@ function flag(e) {
 		this.flagged = true;
 		game.flags++;
 	}
+
 	document.getElementById("mines").innerHTML = game.mines - game.flags;
 	checkwinner();
 }
