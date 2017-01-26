@@ -63,8 +63,7 @@ function placebomb() {
 function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
 	square.disabled = true;
-
-	game.squares[row][col].seen = true;
+	square.seen = true;
 	game.unclicked--;
 
 	var neighbors = 0;
@@ -145,10 +144,9 @@ function checkwinner() {
 }
 
 function allsquares(fn) {
-	var squares = document.getElementsByTagName("button");
-	for (var i = 0; i < squares.length; i++) {
-		if (squares[i].id != "newgame") {
-			fn(squares[i]);
+	for (var i = 0; i < game.height; i++) {
+		for (var j = 0; j < game.width; j++) {
+			fn(game.squares[i][j]);
 		}
 	}
 }
