@@ -64,7 +64,7 @@ function expose(row, col) {
 	var square = document.getElementById(row + "-" + col);
 	square.disabled = true;
 
-	game.seen[row][col] = true;
+	game.squares[row][col].seen = true;
 	game.unclicked--;
 
 	var neighbors = 0;
@@ -84,7 +84,7 @@ function expose(row, col) {
 		square.innerHTML = "&nbsp;";
 		for (var i = (row > 0 ? row - 1 : row); i <= (row < game.height - 1 ? row + 1 : row); i++) {
 			for (var j = (col > 0 ? col - 1 : col); j <= (col < game.width - 1 ? col + 1 : col); j++) {
-					if (!(i == row && j == col) && !game.seen[i][j] && !game.flagged[i][j] && !game.squares[i][j].bomb) {
+					if (!(i == row && j == col) && !game.squares[i][j].seen && !game.flagged[i][j] && !game.squares[i][j].bomb) {
 						expose(i, j);
 					}
 			}
@@ -213,7 +213,6 @@ function newgame() {
 	document.getElementById("score").style.visibility = "visible";
 	document.getElementById("newgame").style.visibility = "visible";
 
-	game.seen = new Array();
 	game.flagged = new Array();
 	game.squares = new Array();
 	game.time = 0;
@@ -227,13 +226,11 @@ function newgame() {
 	}
 
 	for (var i = 0; i < game.height; i++) {
-		game.seen[i] = new Array();
 		game.flagged[i] = new Array();
 		game.squares[i] = new Array();
 		var row = document.createElement("div");
 		row.className = "row";
 		for (var j = 0; j < game.width; j++) {
-			game.seen[i][j] = false;
 			game.flagged[i][j] = false;
 			game.squares[i][j] = new Square(i, j);
 			row.appendChild(game.squares[i][j]);
