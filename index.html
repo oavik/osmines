@@ -28,13 +28,12 @@ button[disabled] { border: none; }
 #score { background: #ccc; }
 #mines, #time { display: inline-block; }
 #options { display: none; color: black; }
-/*
 #options button { width: 50%; }
 label { float: left; }
 input { font-size: inherit; }
 input[type=number] { float: right; width: 4em; }
 input[type=submit] { width: 50%; }
-*/
+br { clear: both; }
 </style>
 <script type="text/javascript">
 var game = { width: 10, height: 10, mines: 10, firstclick: true };
@@ -220,7 +219,6 @@ function newgame() {
 
 	var rows = document.getElementsByClassName("row");
 	for (var i = rows.length-1; i >= 0; i--) {
-		console.log("Removing old row");
 		rows[i].parentNode.removeChild(rows[i]);
 	}
 	console.log(document.getElementById("game"));
@@ -341,7 +339,6 @@ function init() {
 	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();"><br>
 	<input type="submit" value="Start" onclick="newgame(); return false;"><input type="submit" value="Cancel" onclick="oldgame(); return false;">
 	</form>
-
 </div>
 </body>
 </html>
