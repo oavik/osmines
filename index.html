@@ -38,7 +38,7 @@ input[type=submit] { width: 50%; }
 br { clear: both; }
 </style>
 <script type="text/javascript">
-var game = { width: 10, height: 10, mines: 10, firstclick: true };
+var game = { width: 9, height: 9, mines: 10, firstclick: true };
 var icons = {
 	bomb: "&#x1f4a3;",
 	whiteflag: "&#x2690;",
@@ -281,6 +281,14 @@ function update() {
 	game.height = parseInt(height.value);
 	game.mines = parseInt(nmines.value);
 }
+
+function quick(b) {
+	var dim = b.value.split("x");
+	game.width = parseInt(dim[0]);
+	game.height = parseInt(dim[1]);
+	game.mines = parseInt(dim[2]);
+	newgame();
+}
 </script>
 </head>
 <body onload="newgame();" onresize="resize();">
@@ -292,6 +300,9 @@ function update() {
 	</div>
 
 	<form id="options">
+	<input type="submit" value="9x9x10" onclick="quick(this); return false;"><br>
+	<input type="submit" value="16x16x40" onclick="quick(this); return false;"><br>
+	<input type="submit" value="30x16x99" onclick="quick(this); return false;"><br>
 	<label for="width">Width:</label><input type="number" min="2" max="99" id="width" value="10" onchange="update();"><br>
 	<label for="height">Height:</label><input type="number" min="2" max="99" id="height" value="10" onchange="update();"><br>
 	<label for="nmines">Mines:</label><input type="number" min="1" max="100" id="nmines" value="10" onchange="update();"><br>
